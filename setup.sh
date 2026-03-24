@@ -4,19 +4,24 @@ set -euo pipefail
 # ─────────────────────────────────────────────
 #  smallmd setup.sh
 #  Tested on: Ubuntu 22.04/24.04, Debian 12
-#  Usage: sudo bash setup.sh
+#  Usage: sudo bash setup.sh [--deploy-user USER] [--domain example.com]
 # ─────────────────────────────────────────────
 
 INSTALL_DIR="/var/www/smallmd"
 NGINX_CONF="/etc/nginx/sites-available/smallmd"
 PHP_VER=""
 DEPLOY_USER=""
+DOMAIN=""
 
 # ── Parse args ───────────────────────────────
 while [[ $# -gt 0 ]]; do
     case $1 in
         --deploy-user)
             DEPLOY_USER="$2"
+            shift 2
+            ;;
+        --domain)
+            DOMAIN="$2"
             shift 2
             ;;
         *)
@@ -109,6 +114,12 @@ apt-get install -y -qq \
 
 print_ok "nginx + PHP ${PHP_VER} installed"
 
+# Install certbot if domain provided
+if [[ -n "$DOMAIN" ]]; then
+    apt-get install -y -qq certbot python3-certbot-nginx
+    print_ok "certbot installed"
+fi
+
 # Install composer if not present
 if ! command -v composer &>/dev/null; then
     curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
@@ -153,12 +164,13 @@ print_ok "Permissions set"
 print_step "Configuring nginx"
 
 PHP_FPM_SOCK="/run/php/php${PHP_VER}-fpm.sock"
+SERVER_NAME="${DOMAIN:-_}"
 
 cat > "$NGINX_CONF" <<NGINX
 server {
     listen 80 default_server;
     listen [::]:80 default_server;
-    server_name _;
+    server_name ${SERVER_NAME};
 
     root ${INSTALL_DIR}/public;
     index index.php;
@@ -201,6 +213,14 @@ systemctl enable --now php${PHP_VER}-fpm nginx
 systemctl restart php${PHP_VER}-fpm nginx
 print_ok "nginx and PHP-FPM running"
 
+# ── 8. TLS via certbot ───────────────────────
+if [[ -n "$DOMAIN" ]]; then
+    print_step "Obtaining TLS certificate for $DOMAIN"
+    certbot --nginx -d "$DOMAIN" --non-interactive --agree-tos --register-unsafely-without-email \
+        && print_ok "TLS certificate installed — HTTPS active" \
+        || print_err "certbot failed — is DNS pointing at this server yet?"
+fi
+
 # ── 8. Done ──────────────────────────────────
 echo ""
 echo -e "\033[1;32m✓ smallmd is live!\033[0m"
@@ -213,6 +233,9 @@ echo "  To add a page  : create a .md file in content/"
 echo "  To edit config : nano $INSTALL_DIR/config/site.yaml"
 echo ""
 echo "  Visit http://$(hostname -I | awk '{print $1}')"
+if [[ -n "$DOMAIN" ]]; then
+    echo "  Visit https://$DOMAIN"
+fi
 echo ""
 if [[ -n "$DEPLOY_USER" ]]; then
     echo "  Deploy user    : $DEPLOY_USER"
