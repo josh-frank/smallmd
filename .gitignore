@@ -1,0 +1,4 @@
+vendor/
+var/cache/
+*.DS_Store
+.env

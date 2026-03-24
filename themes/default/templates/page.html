@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block content %}
+<article>
+  <h2>{{ page.title }}</h2>
+  {% if page.date %}
+    <p class="date"><small>{{ page.date|date("F j, Y") }}</small></p>
+  {% endif %}
+  {{ page.body|raw }}
+</article>
+{% endblock %}

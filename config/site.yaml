@@ -1,0 +1,6 @@
+title:       My Site
+tagline:     words on the internet
+theme:       default
+author:      Your Name
+base_url:    http://localhost
+cache:       false   # set to true in production
