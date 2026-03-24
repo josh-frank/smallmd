@@ -99,6 +99,7 @@ print_ok "Dependencies installed"
 
 # ── 5. Permissions ───────────────────────────
 print_step "Setting permissions"
+mkdir -p "$INSTALL_DIR/var"          # ← add this line
 chown -R www-data:www-data "$INSTALL_DIR"
 chmod -R 755 "$INSTALL_DIR"
 chmod -R 775 "$INSTALL_DIR/var"
