@@ -12,7 +12,7 @@ A flat-file CMS for people who miss the web.
 ## Install
 
 ```bash
-git clone https://github.com/<…this repo…>
+git clone https://github.com/josh-frank/smallmd
 cd smallmd
 sudo bash setup.sh
 ```
