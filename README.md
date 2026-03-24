@@ -14,7 +14,7 @@ A flat-file CMS for people who miss the web.
 ```bash
 git clone https://github.com/josh-frank/smallmd
 cd smallmd
-sudo bash setup.sh
+sudo bash setup.sh [--deploy-user] [--domain]
 ```
 
 That's it. Visit your server's IP.

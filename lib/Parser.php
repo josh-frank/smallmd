@@ -64,11 +64,14 @@ class Parser
 
         foreach ($files as $file) {
             $slug = basename($file, '.md');
-            if ($slug === '404') continue;
+            if (in_array($slug, ['404', 'footer'])) continue;
 
-            // Quick scan for title in front matter only
-            $raw   = file_get_contents($file);
+            // Reset $meta and $title each iteration so navbar
+            // key doesn't bleed from one file into the next
+            // when no front matter present
+            $meta  = [];
             $title = $slug;
+            $raw   = file_get_contents($file);
 
             if (str_starts_with(ltrim($raw), '---')) {
                 $raw = ltrim($raw);
@@ -92,5 +95,24 @@ class Parser
 
         usort($nav, fn($a, $b) => $a['order'] <=> $b['order']);
         return $nav;
+    }
+
+    public function renderFooter(): string
+    {
+        $file = ROOT . '/content/footer.md';
+        if (!is_file($file)) return '';
+
+        $raw = file_get_contents($file);
+
+        // Strip front matter if present
+        if (str_starts_with(ltrim($raw), '---')) {
+            $raw = ltrim($raw);
+            $end = strpos($raw, '---', 3);
+            if ($end !== false) {
+                $raw = substr($raw, $end + 3);
+            }
+        }
+
+        return $this->md->convert($raw)->getContent();
     }
 }
