@@ -80,6 +80,9 @@ class Parser
                 }
             }
 
+            // Only include in nav if navbar: true is set in front matter
+            if (empty($meta['navbar'])) continue;
+
             $nav[] = [
                 'slug'  => $slug === 'index' ? '/' : '/' . $slug,
                 'title' => $title,

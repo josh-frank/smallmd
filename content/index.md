@@ -1,5 +1,6 @@
 ---
 title: Home
+navbar: true
 nav_order: 1
 ---
 

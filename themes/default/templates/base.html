@@ -33,11 +33,12 @@
   <tr>
     <td id="footer">
       <hr>
-      <p>
+      {{ footer_html | raw }}
+      <!-- <p>
         &copy; {{ "now"|date("Y") }} {{ site.author ?? site.title }}
         &nbsp;&mdash;&nbsp;
         powered by <a href="https://github.com/josh-frank/smallmd">smallmd</a>
-      </p>
+      </p> -->
     </td>
   </tr>
 </table>

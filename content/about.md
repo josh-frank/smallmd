@@ -1,5 +1,6 @@
 ---
 title: About
+navbar: true
 nav_order: 2
 ---
 

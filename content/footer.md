@@ -1,0 +1,1 @@
+© {{ year }} {{ author }} · [About](/about) · Built with [smallmd](https://github.com/josh-frank/smallmd)

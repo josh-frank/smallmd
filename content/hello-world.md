@@ -1,5 +1,6 @@
 ---
 title: Hello World
+navbar: true
 template: post
 date: 2025-01-01
 nav_order: 99
