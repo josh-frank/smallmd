@@ -7,9 +7,7 @@
     <p class="date"><small>Posted {{ page.date|date("F j, Y") }}</small></p>
   {% endif %}
   <hr>
-  {% if page.toc %}
-    {{ page.toc|raw }}
-  {% endif %}
+  {% if page.toc %}{{ page.toc|raw }}{% endif %}
   {{ page.body|raw }}
   <hr>
   <p><small><a href="/">&larr; Back home</a></small></p>

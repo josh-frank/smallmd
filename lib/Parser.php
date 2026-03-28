@@ -44,7 +44,7 @@ class Parser
             }
         }
 
-        // Build TOC and inject heading anchors if toc: true in front matter
+        // Build TOC if toc: true in front matter
         $toc = '';
         if (!empty($meta['toc'])) {
             [$html, $toc] = $this->buildToc($html);
@@ -65,56 +65,79 @@ class Parser
     }
 
     /**
-     * Inject id attributes into h2/h3 headings and return [annotated $html, $tocHtml].
-     * h1 is skipped — it's the page title and already rendered by the template.
+     * Walk the rendered HTML with DOMDocument to find h2/h3 in document order.
+     * Adds id attributes to each heading in the body, and returns a nested TOC.
      *
-     * @return array{string, string}
+     * @return array{string, string} [annotated body html, toc html]
      */
     private function buildToc(string $html): array
     {
-        $slugCounts = [];
-        $entries    = [];
-
-        // Add id="" to every h2/h3, collecting entries for the TOC list
-        $html = preg_replace_callback(
-            '/<(h[23])([^>]*)>(.*?)<\/h[23]>/is',
-            function (array $m) use (&$slugCounts, &$entries): string {
-                $tag   = $m[1];           // h2 or h3
-                $attrs = $m[2];
-                $inner = $m[3];
-
-                $text = strip_tags($inner);
-                $slug = strtolower(trim(preg_replace('/[^a-z0-9]+/i', '-', $text), '-'));
-
-                // Deduplicate: "intro", "intro-2", "intro-3" …
-                if (isset($slugCounts[$slug])) {
-                    $slugCounts[$slug]++;
-                    $slug .= '-' . $slugCounts[$slug];
-                } else {
-                    $slugCounts[$slug] = 1;
-                }
-
-                $entries[] = ['tag' => $tag, 'id' => $slug, 'text' => $text];
-
-                return "<{$tag}{$attrs} id=\"{$slug}\">{$inner}</{$tag}>";
-            },
-            $html
+        // DOMDocument gives us nodes in document order — no regex tricks needed
+        $dom = new \DOMDocument();
+        @$dom->loadHTML(
+            '<?xml encoding="utf-8"?><div id="toc-root">' . $html . '</div>',
+            LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD
         );
 
-        if (empty($entries)) {
+        $xpath    = new \DOMXPath($dom);
+        $headings = $xpath->query('//div[@id="toc-root"]//*[self::h2 or self::h3]');
+
+        if ($headings->length === 0) {
             return [$html, ''];
         }
 
-        // Build a flat <ul> with one level of nesting: h2 = top, h3 = indented
-        $items = '';
-        foreach ($entries as $entry) {
-            $indent = ($entry['tag'] === 'h3') ? ' class="toc-sub"' : '';
-            $items .= "<li{$indent}><a href=\"#{$entry['id']}\">{$entry['text']}</a></li>\n";
+        $slugCounts = [];
+        $entries    = [];
+
+        foreach ($headings as $node) {
+            $text = $node->textContent;
+            $slug = strtolower(trim(preg_replace('/[^a-z0-9]+/', '-', $text), '-'));
+
+            // Deduplicate slugs
+            if (isset($slugCounts[$slug])) {
+                $slugCounts[$slug]++;
+                $slug .= '-' . $slugCounts[$slug];
+            } else {
+                $slugCounts[$slug] = 1;
+            }
+
+            $node->setAttribute('id', $slug);
+            $entries[] = ['tag' => $node->nodeName, 'id' => $slug, 'text' => $text];
         }
 
-        $toc = "<nav class=\"toc\">\n<ul>\n{$items}</ul>\n</nav>\n";
+        // Serialize back — extract just the inner HTML of our wrapper div
+        $root      = $xpath->query('//div[@id="toc-root"]')->item(0);
+        $innerHtml = '';
+        foreach ($root->childNodes as $child) {
+            $innerHtml .= $dom->saveHTML($child);
+        }
 
-        return [$html, $toc];
+        // Build TOC: h2 = top-level <li>, h3 = nested <li> inside a <ul> under its parent h2
+        $toc    = "<nav class=\"toc\">\n<ul>\n";
+        $inSub  = false;
+        $openH2 = false;
+
+        foreach ($entries as $entry) {
+            $link = '<a href="#' . $entry['id'] . '">' . htmlspecialchars($entry['text']) . '</a>';
+
+            if ($entry['tag'] === 'h2') {
+                if ($inSub)  { $toc .= "</ul></li>\n"; $inSub = false; }
+                elseif ($openH2) { $toc .= "</li>\n"; }
+                $toc   .= '<li>' . $link;
+                $openH2 = true;
+            } else {
+                // h3
+                if (!$inSub) { $toc .= "\n<ul>\n"; $inSub = true; }
+                $toc .= '<li>' . $link . "</li>\n";
+            }
+        }
+
+        if ($inSub)       { $toc .= "</ul></li>\n"; }
+        elseif ($openH2)  { $toc .= "</li>\n"; }
+
+        $toc .= "</ul>\n</nav>\n";
+
+        return [$innerHtml, $toc];
     }
 
     private function buildNav(): array
