@@ -80,7 +80,7 @@ class Parser
         );
 
         $xpath    = new \DOMXPath($dom);
-        $headings = $xpath->query('//div[@id="toc-root"]//*[self::h2 or self::h3]');
+        $headings = $xpath->query('//div[@id="toc-root"]//*[self::h1 or self::h2 or self::h3]');
 
         if ($headings->length === 0) {
             return [$html, ''];
@@ -112,28 +112,39 @@ class Parser
             $innerHtml .= $dom->saveHTML($child);
         }
 
-        // Build TOC: h2 = top-level <li>, h3 = nested <li> inside a <ul> under its parent h2
+        // Build TOC: h1 = top-level, h2 = nested under h1, h3 = nested under h2
         $toc    = "<nav class=\"toc\">\n<ul>\n";
-        $inSub  = false;
+        $inH2   = false; // currently inside an h1's sub-list
+        $inH3   = false; // currently inside an h2's sub-list
+        $openH1 = false;
         $openH2 = false;
 
         foreach ($entries as $entry) {
             $link = '<a href="#' . $entry['id'] . '">' . htmlspecialchars($entry['text']) . '</a>';
 
-            if ($entry['tag'] === 'h2') {
-                if ($inSub)  { $toc .= "</ul></li>\n"; $inSub = false; }
+            if ($entry['tag'] === 'h1') {
+                if ($inH3)  { $toc .= "</ul></li>\n"; $inH3 = false; $openH2 = false; }
+                if ($inH2)  { $toc .= "</ul></li>\n"; $inH2 = false; }
+                elseif ($openH1) { $toc .= "</li>\n"; }
+                $toc   .= '<li>' . $link;
+                $openH1 = true;
+            } elseif ($entry['tag'] === 'h2') {
+                if ($inH3)  { $toc .= "</ul></li>\n"; $inH3 = false; }
                 elseif ($openH2) { $toc .= "</li>\n"; }
+                if (!$inH2) { $toc .= "\n<ul>\n"; $inH2 = true; }
                 $toc   .= '<li>' . $link;
                 $openH2 = true;
             } else {
                 // h3
-                if (!$inSub) { $toc .= "\n<ul>\n"; $inSub = true; }
+                if (!$inH3) { $toc .= "\n<ul>\n"; $inH3 = true; }
                 $toc .= '<li>' . $link . "</li>\n";
             }
         }
 
-        if ($inSub)       { $toc .= "</ul></li>\n"; }
-        elseif ($openH2)  { $toc .= "</li>\n"; }
+        if ($inH3)       { $toc .= "</ul></li>\n"; }
+        elseif ($openH2) { $toc .= "</li>\n"; }
+        if ($inH2)       { $toc .= "</ul></li>\n"; }
+        elseif ($openH1) { $toc .= "</li>\n"; }
 
         $toc .= "</ul>\n</nav>\n";
 
