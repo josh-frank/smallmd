@@ -169,3 +169,39 @@ hr {
   body { font-size: 15px; }
   table { padding: 0 0.75rem; }
 }
+
+/* Table of contents */
+nav.toc {
+  background: #f9f9f9;
+  border: 1px solid #ddd;
+  padding: 0.6rem 1rem;
+  margin: 1rem 0 1.5rem;
+  display: inline-block;
+  min-width: 200px;
+  font-family: Verdana, Geneva, sans-serif;
+  font-size: 0.85rem;
+}
+
+nav.toc::before {
+  content: "Contents";
+  display: block;
+  font-weight: bold;
+  margin-bottom: 0.4rem;
+}
+
+nav.toc ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+nav.toc li {
+  margin: 0.2rem 0;
+}
+
+nav.toc li.toc-sub {
+  padding-left: 1.2rem;
+}
+
+nav.toc a       { color: #00c; text-decoration: none; }
+nav.toc a:hover { text-decoration: underline; }

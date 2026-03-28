@@ -44,6 +44,12 @@ class Parser
             }
         }
 
+        // Build TOC and inject heading anchors if toc: true in front matter
+        $toc = '';
+        if (!empty($meta['toc'])) {
+            [$html, $toc] = $this->buildToc($html);
+        }
+
         // Build nav from content/ directory
         $nav = $this->buildNav();
 
@@ -54,7 +60,61 @@ class Parser
             meta:     $meta,
             body:     $html,
             nav:      $nav,
+            toc:      $toc,
         );
+    }
+
+    /**
+     * Inject id attributes into h2/h3 headings and return [annotated $html, $tocHtml].
+     * h1 is skipped — it's the page title and already rendered by the template.
+     *
+     * @return array{string, string}
+     */
+    private function buildToc(string $html): array
+    {
+        $slugCounts = [];
+        $entries    = [];
+
+        // Add id="" to every h2/h3, collecting entries for the TOC list
+        $html = preg_replace_callback(
+            '/<(h[23])([^>]*)>(.*?)<\/h[23]>/is',
+            function (array $m) use (&$slugCounts, &$entries): string {
+                $tag   = $m[1];           // h2 or h3
+                $attrs = $m[2];
+                $inner = $m[3];
+
+                $text = strip_tags($inner);
+                $slug = strtolower(trim(preg_replace('/[^a-z0-9]+/i', '-', $text), '-'));
+
+                // Deduplicate: "intro", "intro-2", "intro-3" …
+                if (isset($slugCounts[$slug])) {
+                    $slugCounts[$slug]++;
+                    $slug .= '-' . $slugCounts[$slug];
+                } else {
+                    $slugCounts[$slug] = 1;
+                }
+
+                $entries[] = ['tag' => $tag, 'id' => $slug, 'text' => $text];
+
+                return "<{$tag}{$attrs} id=\"{$slug}\">{$inner}</{$tag}>";
+            },
+            $html
+        );
+
+        if (empty($entries)) {
+            return [$html, ''];
+        }
+
+        // Build a flat <ul> with one level of nesting: h2 = top, h3 = indented
+        $items = '';
+        foreach ($entries as $entry) {
+            $indent = ($entry['tag'] === 'h3') ? ' class="toc-sub"' : '';
+            $items .= "<li{$indent}><a href=\"#{$entry['id']}\">{$entry['text']}</a></li>\n";
+        }
+
+        $toc = "<nav class=\"toc\">\n<ul>\n{$items}</ul>\n</nav>\n";
+
+        return [$html, $toc];
     }
 
     private function buildNav(): array
