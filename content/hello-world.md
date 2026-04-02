@@ -4,6 +4,7 @@ navbar: true
 template: post
 date: 2025-01-01
 nav_order: 99
+notes: "**Heads up:** this is a note. Notes appear after title, before TOC."
 ---
 
 # Hello World

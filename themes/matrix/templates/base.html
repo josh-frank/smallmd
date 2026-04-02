@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ page.title }} — {{ site.title }}</title>
+  <link rel="stylesheet" href="/assets/style.css">
+</head>
+<body>
+
+<table width="100%" border="0" cellpadding="0" cellspacing="0">
+  <tr>
+    <td id="header">
+      <h1><a href="/">{{ site.title }}</a></h1>
+      {% if site.tagline %}<p id="tagline">{{ site.tagline }}</p>{% endif %}
+    </td>
+  </tr>
+  <tr>
+    <td id="nav">
+      <nav>
+        {% for item in page.nav %}
+          <a href="{{ item.slug }}">{{ item.title }}</a>
+          {% if not loop.last %} &nbsp;|&nbsp; {% endif %}
+        {% endfor %}
+      </nav>
+    </td>
+  </tr>
+  <tr>
+    <td id="main">
+      {% block content %}{% endblock %}
+    </td>
+  </tr>
+  <tr>
+    <td id="footer">
+      <hr>
+      {{ footer_html | raw }}
+      <!-- <p>
+        &copy; {{ "now"|date("Y") }} {{ site.author ?? site.title }}
+        &nbsp;&mdash;&nbsp;
+        powered by <a href="https://github.com/josh-frank/smallmd">smallmd</a>
+      </p> -->
+    </td>
+  </tr>
+</table>
+
+</body>
+</html>

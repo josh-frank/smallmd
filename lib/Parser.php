@@ -53,6 +53,12 @@ class Parser
         // Build nav from content/ directory
         $nav = $this->buildNav();
 
+        // Render notes markdown from front matter if present
+        $notes = '';
+        if (!empty($meta['notes'])) {
+            $notes = $this->md->convert($meta['notes'])->getContent();
+        }
+
         return new Page(
             title:    $meta['title']    ?? 'Untitled',
             template: $meta['template'] ?? 'page',
@@ -61,6 +67,7 @@ class Parser
             body:     $html,
             nav:      $nav,
             toc:      $toc,
+            notes:    $notes,
         );
     }
 

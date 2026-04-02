@@ -154,6 +154,18 @@ smallmd/
 
 ---
 
+## Issues
+
+- buildNav() re-reads every .md file on every request — it's called inside Parser::parse(), which runs per page load. Even with Twig caching on, the nav rebuild isn't cached. On a small site this is fine, but it's the one obvious scaling concern.
+- Theme::loadFooter() and Parser::renderFooter() are duplicated — Parser has a renderFooter() method that's never called (dead code), and Theme does the same thing privately. One of them should go.
+The nginx config hardcodes themes/default/assets/ — so if you change theme: in site.yaml, your assets 404. The asset path should be dynamic or at least use a variable that matches the theme.
+- No Content-Security-Policy or other security headers — fine for a hobby project, worth noting for production use.
+- html_input: 'allow' in the CommonMark config lets raw HTML through in .md files. That's intentional and useful, but means content authors can inject arbitrary HTML — worth a comment in the config so future maintainers know it's a deliberate choice, not an oversight.
+- footer.md front-matter stripping is copy-pasted — the same 5-line YAML-strip block appears three times across Parser and Theme. A small private static helper would clean this up.
+- setup.sh sudoers grants apt-get to the deploy user — that's a lot of privilege. git pull, composer install, and systemctl restart are really all a deploy user needs.
+
+---
+
 ## License
 
 MIT

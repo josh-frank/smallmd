@@ -13,5 +13,6 @@ class Page
         public readonly string  $body,
         public readonly array   $nav,
         public readonly string  $toc = '',
+        public readonly string  $notes = '',
     ) {}
 }
