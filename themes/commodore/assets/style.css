@@ -1,0 +1,225 @@
+/* smallmd commodore theme — READY. */
+
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+
+/* C64 palette:
+   --c64-bg:      #3f48cc  (classic blue screen)
+   --c64-fg:      #7b72d9  (lighter blue text — the real C64 default)
+   --c64-bright:  #ffffff  (white for headings / highlights)
+   --c64-dim:     #2a2f8f  (darker blue for borders / secondary)
+   --c64-cursor:  #7b72d9
+*/
+
+:root {
+  --c64-bg:     #3f48cc;
+  --c64-fg:     #7b72d9;
+  --c64-bright: #ffffff;
+  --c64-dim:    #2a2f8f;
+}
+
+body {
+  font-family: 'Share Tech Mono', 'Courier New', Courier, monospace;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--c64-fg);
+  background: var(--c64-bg);
+  margin: 0;
+  padding: 0;
+  text-transform: uppercase;
+}
+
+table {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+/* Header */
+#header {
+  padding: 1.5rem 0 0.5rem;
+  border-bottom: 2px solid var(--c64-bright);
+}
+
+#header h1 {
+  margin: 0;
+  font-size: 1.6rem;
+  letter-spacing: 0.12em;
+  color: var(--c64-bright);
+}
+
+#header h1 a {
+  text-decoration: none;
+  color: var(--c64-bright);
+}
+
+#header h1 a:hover {
+  color: var(--c64-fg);
+}
+
+/* Blinking cursor after site title */
+#header h1 a::after {
+  content: '\2588';
+  display: inline-block;
+  margin-left: 4px;
+  animation: blink 1s step-end infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+#tagline {
+  margin: 0.2rem 0 0;
+  color: var(--c64-fg);
+  font-style: normal;
+  font-size: 0.9rem;
+}
+
+/* Nav */
+#nav {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--c64-dim);
+  font-size: 0.85rem;
+}
+
+#nav a {
+  color: var(--c64-bright);
+  text-decoration: none;
+  letter-spacing: 0.08em;
+}
+
+#nav a:hover {
+  color: var(--c64-fg);
+}
+
+#nav a:visited {
+  color: var(--c64-fg);
+}
+
+/* Main content */
+#main {
+  padding: 1.5rem 0;
+  min-height: 60vh;
+}
+
+article h2 {
+  font-size: 1.4rem;
+  margin-top: 0;
+  border-bottom: 1px solid var(--c64-dim);
+  padding-bottom: 0.3rem;
+  color: var(--c64-bright);
+  letter-spacing: 0.1em;
+}
+
+article h3 { font-size: 1.15rem; color: var(--c64-bright); }
+article h4 { font-size: 1rem;    color: var(--c64-fg); }
+
+a         { color: var(--c64-bright); }
+a:visited { color: var(--c64-fg); }
+a:hover   { color: var(--c64-fg); text-decoration: none; }
+
+p { margin: 0.8rem 0; }
+
+/* Code */
+code, kbd {
+  font-family: 'Share Tech Mono', 'Courier New', Courier, monospace;
+  font-size: 0.88em;
+  background: var(--c64-dim);
+  border: 1px solid var(--c64-fg);
+  padding: 0 3px;
+  color: var(--c64-bright);
+}
+
+pre {
+  background: var(--c64-dim);
+  border: 1px solid var(--c64-fg);
+  padding: 0.75rem 1rem;
+  overflow-x: auto;
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+pre code {
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+/* Blockquote */
+blockquote {
+  border-left: 3px solid var(--c64-bright);
+  margin: 1rem 0;
+  padding: 0.2rem 1rem;
+  color: var(--c64-fg);
+  font-style: normal;
+}
+
+/* Images */
+img {
+  max-width: 100%;
+  height: auto;
+  border: 2px solid var(--c64-bright);
+}
+
+/* Meta / dates */
+.date { color: var(--c64-fg); }
+
+/* HR */
+hr {
+  border: none;
+  border-top: 1px solid var(--c64-dim);
+  margin: 1.5rem 0;
+}
+
+/* Footer */
+#footer {
+  padding: 0.5rem 0 1.5rem;
+  font-size: 0.8rem;
+  color: var(--c64-fg);
+}
+
+#footer a       { color: var(--c64-fg); }
+#footer a:hover { color: var(--c64-bright); }
+
+/* Responsive */
+@media (max-width: 600px) {
+  body { font-size: 15px; }
+  table { padding: 0 0.75rem; }
+}
+
+/* Table of contents */
+nav.toc {
+  background: var(--c64-dim);
+  border: 1px solid var(--c64-bright);
+  display: inline-block;
+  min-width: 200px;
+  padding: 0.6rem 1rem 0.8rem;
+  margin: 0 0 1.5rem;
+  font-size: 0.85rem;
+}
+
+nav.toc::before {
+  content: "* CONTENTS *";
+  display: block;
+  font-weight: bold;
+  margin-bottom: 0.4rem;
+  color: var(--c64-bright);
+  letter-spacing: 0.1em;
+}
+
+nav.toc ul      { margin: 0; padding: 0; list-style: none; }
+nav.toc ul ul   { padding-left: 1.2rem; }
+nav.toc li      { margin: 0.2rem 0; }
+nav.toc li::before { content: "* "; color: var(--c64-fg); }
+nav.toc a       { color: var(--c64-bright); text-decoration: none; }
+nav.toc a:hover { color: var(--c64-fg); }
+
+/* Notes */
+div.notes {
+  background: var(--c64-dim);
+  border: 1px solid var(--c64-bright);
+  padding: 0.6rem 1rem;
+  margin: 0 0 1.2rem;
+  color: var(--c64-bright);
+}

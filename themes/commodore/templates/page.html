@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block content %}
+<article>
+  <h2>{{ page.title }}</h2>
+  {% if page.date %}
+    <p class="date"><small>{{ page.date|date("F j, Y") }}</small></p>
+  {% endif %}
+  {% if page.notes %}<div class="notes">{{ page.notes|raw }}</div>{% endif %}
+  {% if page.toc %}{{ page.toc|raw }}{% endif %}
+  {{ page.body|raw }}
+</article>
+{% endblock %}

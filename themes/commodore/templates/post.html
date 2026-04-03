@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block content %}
+<article>
+  <h2>{{ page.title }}</h2>
+  {% if page.date %}
+    <p class="date"><small>Posted {{ page.date|date("F j, Y") }}</small></p>
+  {% endif %}
+  <hr>
+  {% if page.notes %}<div class="notes">{{ page.notes|raw }}</div>{% endif %}
+  {% if page.toc %}{{ page.toc|raw }}{% endif %}
+  {{ page.body|raw }}
+  <hr>
+  <p><small><a href="/">&larr; Back home</a></small></p>
+</article>
+{% endblock %}
