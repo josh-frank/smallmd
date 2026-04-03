@@ -72,7 +72,9 @@ if [[ $EUID -ne 0 ]]; then
 fi
 
 # ── 0b. Collision check ──────────────────────
-if [[ -d "$INSTALL_DIR" ]]; then
+# Allow running from inside the install dir (e.g. re-installing in place)
+SCRIPT_DIR="$(realpath "$(dirname "${BASH_SOURCE[0]}")")"
+if [[ -d "$INSTALL_DIR" && "$SCRIPT_DIR" != "$INSTALL_DIR" ]]; then
     print_err "$INSTALL_DIR already exists — choose a different --name or remove it first"
 fi
 
@@ -161,14 +163,8 @@ fi
 # ── 3. Copy files ────────────────────────────
 print_step "Installing smallmd to $INSTALL_DIR"
 
-SCRIPT_DIR="$(realpath "$(dirname "${BASH_SOURCE[0]}")")"
-
 if [[ ! -f "$SCRIPT_DIR/composer.json" ]]; then
     print_err "Run setup.sh from the smallmd repo directory (composer.json not found in $SCRIPT_DIR)"
-fi
-
-if [[ "$SCRIPT_DIR" == "$INSTALL_DIR" ]]; then
-    print_err "Cannot install into the repo directory itself — choose a different --name or move setup.sh outside of /var/www/${SITE_NAME}"
 fi
 
 mkdir -p "$INSTALL_DIR"
