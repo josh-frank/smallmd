@@ -233,6 +233,10 @@ print_ok "FPM pool written to $FPM_POOL_FILE"
 # ── 7. nginx config ──────────────────────────
 print_step "Configuring nginx"
 
+# Clean up any previous config for this site before rewriting
+rm -f "/etc/nginx/sites-enabled/smallmd-${SITE_NAME}"
+rm -f "/etc/nginx/sites-available/smallmd-${SITE_NAME}"
+
 SERVER_NAME="${DOMAIN:-_}"
 
 # Only claim default_server if no domain is set and no other site has already claimed it
