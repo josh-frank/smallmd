@@ -236,7 +236,7 @@ print_step "Configuring nginx"
 SERVER_NAME="${DOMAIN:-_}"
 
 # Only use default_server if no other site has claimed it
-if grep -rl 'default_server' /etc/nginx/sites-enabled/ &>/dev/null; then
+if grep -rl 'default_server' /etc/nginx/sites-enabled/ --exclude="smallmd-${SITE_NAME}" &>/dev/null; then
     LISTEN_OPTS="listen 80;"$'\n'"    listen [::]:80;"
 else
     LISTEN_OPTS="listen 80 default_server;"$'\n'"    listen [::]:80 default_server;"
