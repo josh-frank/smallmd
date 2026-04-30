@@ -18,10 +18,13 @@ class Router
         'woff2' => 'font/woff2',
     ];
 
+    private string $nonce = '';
+
     public function __construct(private Config $config) {}
 
-    public function handle(string $uri): void
+    public function handle(string $uri, string $nonce): void
     {
+        $this->nonce = $nonce;
         $path = parse_url($uri, PHP_URL_PATH);
         $path = '/' . trim($path, '/');
 
@@ -59,7 +62,7 @@ class Router
 
         http_response_code(200);
         header('Content-Type: text/html; charset=utf-8');
-        echo $theme->render($page);
+        echo $theme->render($page, $this->nonce);
     }
 
     private function serveAsset(string $path): void
@@ -127,7 +130,7 @@ class Router
             $parser = new Parser();
             $page   = $parser->parse($file);
             $theme  = new Theme($this->config);
-            echo $theme->render($page);
+            echo $theme->render($page, $this->nonce);
         } else {
             echo '<html><body><h1>404 Not Found</h1></body></html>';
         }

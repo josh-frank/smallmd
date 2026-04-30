@@ -37,7 +37,7 @@ class Theme
         }));
     }
 
-    public function render(Page $page): string
+    public function render(Page $page, string $nonce): string
     {
         $template = $page->template . '.html';
 
@@ -50,6 +50,7 @@ class Theme
             'page'        => $page,
             'site'        => $this->config->all(),
             'footer_html' => $this->loadFooter(),
+            'nonce'       => $nonce,
         ]);
     }
 
