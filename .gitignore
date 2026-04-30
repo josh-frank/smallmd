@@ -2,3 +2,7 @@ vendor/
 var/cache/
 *.DS_Store
 .env
+
+content/
+config/site.yaml
+themes/*/assets/
