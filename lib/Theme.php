@@ -11,9 +11,15 @@ use Twig\TwigFilter;
 class Theme
 {
     private Environment $twig;
+    private CommonMarkConverter $md;
 
     public function __construct(private Config $config)
     {
+        $this->md = new CommonMarkConverter([
+            'html_input'         => 'strip',
+            'allow_unsafe_links' => false,
+        ]);
+
         $themeName = $config->get('theme', 'default');
         $themePath = ROOT . '/themes/' . $themeName . '/templates';
 
@@ -59,11 +65,6 @@ class Theme
         $file = ROOT . '/content/footer.md';
         if (!is_file($file)) return '';
 
-        $parser = new CommonMarkConverter([
-            'html_input'         => 'allow',
-            'allow_unsafe_links' => false,
-        ]);
-
         $raw = file_get_contents($file);
 
         // Strip front matter if present
@@ -82,6 +83,6 @@ class Theme
         ];
         $raw = strtr($raw, $vars);
 
-        return $parser->convert($raw)->getContent();
+        return $this->md->convert($raw)->getContent();
     }
 }

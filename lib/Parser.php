@@ -13,7 +13,7 @@ class Parser
     public function __construct()
     {
         $this->md = new CommonMarkConverter([
-            'html_input'         => 'allow',
+            'html_input'         => 'strip',
             'allow_unsafe_links' => false,
         ]);
     }
